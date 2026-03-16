@@ -1,0 +1,33 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: rpa-transparencia:latest
+    container_name: rpa-transparencia-api
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      HEADLESS: "true"
+      TIMEOUT_MS: "${TIMEOUT_MS:-30000}"
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      PORT: "8000"
+      CORS_ORIGINS: "${CORS_ORIGINS:-*}"
+      MAX_BROWSER_INSTANCES: "${MAX_BROWSER_INSTANCES:-5}"
+      RATE_LIMIT_PER_MINUTE: "${RATE_LIMIT_PER_MINUTE:-10}"
+    volumes:
+      - logs:/app/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    # Recursos necessários para Chromium headless
+    shm_size: "256m"
+
+volumes:
+  logs:
+    driver: local
