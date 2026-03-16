@@ -82,7 +82,10 @@ async def test_erro_nome() -> None:
 
     assert response.sucesso is False
     assert response.mensagem_erro is not None
-    assert "0 resultados" in response.mensagem_erro or "não" in response.mensagem_erro.lower()
+    assert (
+        "0 resultados" in response.mensagem_erro
+        or "não" in response.mensagem_erro.lower()
+    )
 
 
 # Cenário 5: Sobrenome + filtro social retorna resultado filtrado

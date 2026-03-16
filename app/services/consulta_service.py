@@ -3,9 +3,9 @@ import logging
 from app.bot.browser import BrowserManager
 from app.bot.scraper import TransparenciaScraper
 from app.core.exceptions import (
-    ConsultaNaoEncontradaException,
-    ErroNavegacaoException,
-    TimeoutConsultaException,
+    ConsultaNaoEncontradaError,
+    ErroNavegacaoError,
+    TimeoutConsultaError,
 )
 from app.models.request import ConsultaRequest, TipoIdentificador
 from app.models.response import ConsultaResponse
@@ -43,7 +43,7 @@ class ConsultaService:
                     filtro_social=request.filtro_social,
                 )
 
-        except ConsultaNaoEncontradaException as exc:
+        except ConsultaNaoEncontradaError as exc:
             logger.info("Consulta não encontrada: tipo=%s", tipo_log)
             return ConsultaResponse(
                 sucesso=False,
@@ -52,14 +52,14 @@ class ConsultaService:
                 ),
             )
 
-        except TimeoutConsultaException as exc:
+        except TimeoutConsultaError as exc:
             logger.warning("Timeout na consulta: tipo=%s", tipo_log)
             return ConsultaResponse(
                 sucesso=False,
                 mensagem_erro=exc.mensagem,
             )
 
-        except ErroNavegacaoException as exc:
+        except ErroNavegacaoError as exc:
             logger.error("Erro de navegação: %s", exc.detalhe)
             return ConsultaResponse(
                 sucesso=False,

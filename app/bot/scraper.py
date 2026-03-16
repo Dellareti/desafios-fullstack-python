@@ -1,7 +1,8 @@
 import base64
 import logging
 
-from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
+from playwright.async_api import Page
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from app.bot.parser import (
     limpar_texto,
@@ -9,9 +10,9 @@ from app.bot.parser import (
 )
 from app.core.config import settings
 from app.core.exceptions import (
-    ConsultaNaoEncontradaException,
-    ErroNavegacaoException,
-    TimeoutConsultaException,
+    ConsultaNaoEncontradaError,
+    ErroNavegacaoError,
+    TimeoutConsultaError,
 )
 from app.models.request import TipoIdentificador
 from app.models.response import BeneficioDetalhe, ConsultaResponse
@@ -99,9 +100,9 @@ class TransparenciaScraper:
         Executa a consulta completa e retorna o resultado estruturado.
 
         Raises:
-            ConsultaNaoEncontradaException: Nenhum resultado encontrado.
-            TimeoutConsultaException: Tempo limite excedido.
-            ErroNavegacaoException: Erro inesperado durante a navegação.
+            ConsultaNaoEncontradaError: Nenhum resultado encontrado.
+            TimeoutConsultaError: Tempo limite excedido.
+            ErroNavegacaoError: Erro inesperado durante a navegação.
         """
         try:
             await self._navegar_para_busca(identificador, filtro_social)
@@ -128,16 +129,16 @@ class TransparenciaScraper:
                 screenshot_base64=screenshot,
             )
 
-        except ConsultaNaoEncontradaException:
+        except ConsultaNaoEncontradaError:
             raise
-        except TimeoutConsultaException:
+        except TimeoutConsultaError:
             raise
         except PlaywrightTimeoutError as exc:
             logger.warning("Timeout Playwright: %s", exc)
-            raise TimeoutConsultaException() from exc
+            raise TimeoutConsultaError() from exc
         except Exception as exc:
             logger.exception("Erro inesperado durante scraping")
-            raise ErroNavegacaoException(str(exc)) from exc
+            raise ErroNavegacaoError(str(exc)) from exc
 
 
     async def _navegar_para_busca(
@@ -180,7 +181,7 @@ class TransparenciaScraper:
                 "networkidle", timeout=settings.timeout_ms
             )
         except PlaywrightTimeoutError:
-            raise TimeoutConsultaException(identificador)
+            raise TimeoutConsultaError(identificador)
 
         url_atual = self._page.url
 
@@ -194,7 +195,7 @@ class TransparenciaScraper:
         if await count_el.count() > 0:
             count_txt = limpar_texto(await count_el.inner_text())
             if count_txt == "0":
-                raise ConsultaNaoEncontradaException(identificador, tipo.value)
+                raise ConsultaNaoEncontradaError(identificador, tipo.value)
             logger.debug("Resultados encontrados: %s", count_txt)
             return False
 
@@ -205,10 +206,10 @@ class TransparenciaScraper:
             "foram encontrados 0 resultados" in body_lower
             or "nenhum resultado" in body_lower
         ):
-            raise ConsultaNaoEncontradaException(identificador, tipo.value)
+            raise ConsultaNaoEncontradaError(identificador, tipo.value)
 
         if "não foi possível" in body_lower and tipo != TipoIdentificador.NOME:
-            raise TimeoutConsultaException(identificador)
+            raise TimeoutConsultaError(identificador)
 
         return False
 
@@ -221,7 +222,7 @@ class TransparenciaScraper:
         # Seletor real do portal: <a class="link-busca-nome" href="...">NOME</a>
         primeiro_link = self._page.locator("a.link-busca-nome").first
         if await primeiro_link.count() == 0:
-            raise ConsultaNaoEncontradaException(identificador, tipo.value)
+            raise ConsultaNaoEncontradaError(identificador, tipo.value)
 
         await primeiro_link.click()
         await self._page.wait_for_load_state(
@@ -241,7 +242,9 @@ class TransparenciaScraper:
             "nis": dados_raw.get("NIS") or None,
             "data_nascimento": dados_raw.get("Data de Nascimento") or None,
             # Portal usa "Localidade" (ex: "CAXIAS DO SUL - RS")
-            "municipio_uf": dados_raw.get("Localidade") or dados_raw.get("Município") or None,
+            "municipio_uf": (
+                dados_raw.get("Localidade") or dados_raw.get("Município") or None
+            ),
             "_nis_accordion": None,  # preenchido por _coletar_beneficios
         }
 
@@ -261,8 +264,10 @@ class TransparenciaScraper:
         Estrutura real do portal:
           <strong>Auxílio Emergencial</strong>
           <table>
-            <thead><tr><th>Detalhar</th><th>NIS</th><th>Nome</th><th>Valor Recebido</th></tr></thead>
-            <tbody><tr><td>[btn]</td><td>NIS</td><td>NOME</td><td>R$ X,XX</td></tr></tbody>
+            <thead><tr><th>Detalhar</th><th>NIS</th><th>Nome</th>
+                        <th>Valor Recebido</th></tr></thead>
+            <tbody><tr><td>[btn]</td><td>NIS</td><td>NOME</td>
+                        <td>R$ X,XX</td></tr></tbody>
           </table>
         """
         # Tentar expandir accordion se estiver fechado

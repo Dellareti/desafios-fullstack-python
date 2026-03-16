@@ -1,4 +1,3 @@
-import pytest
 
 from app.bot.parser import (
     limpar_texto,

@@ -1,4 +1,4 @@
-class ConsultaNaoEncontradaException(Exception):
+class ConsultaNaoEncontradaError(Exception):
     """Levantada quando nenhum resultado é encontrado para o identificador informado."""
 
     def __init__(self, termo: str, tipo: str) -> None:
@@ -7,7 +7,7 @@ class ConsultaNaoEncontradaException(Exception):
         super().__init__(f"Nenhum resultado encontrado para {tipo}: {termo}")
 
 
-class TimeoutConsultaException(Exception):
+class TimeoutConsultaError(Exception):
     """Levantada quando a consulta ultrapassa o tempo máximo configurado."""
 
     def __init__(self, identificador: str | None = None) -> None:
@@ -18,7 +18,7 @@ class TimeoutConsultaException(Exception):
         super().__init__(msg)
 
 
-class ErroNavegacaoException(Exception):
+class ErroNavegacaoError(Exception):
     """Levantada quando ocorre falha inesperada durante a navegação."""
 
     def __init__(self, detalhe: str) -> None:

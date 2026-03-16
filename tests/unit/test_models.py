@@ -7,7 +7,9 @@ from app.models.response import BeneficioDetalhe, ConsultaResponse
 
 class TestConsultaRequest:
     def test_request_cpf_valido(self) -> None:
-        req = ConsultaRequest(identificador="123.456.789-00", tipo=TipoIdentificador.CPF)
+        req = ConsultaRequest(
+            identificador="123.456.789-00", tipo=TipoIdentificador.CPF
+        )
         assert req.tipo == TipoIdentificador.CPF
         assert req.filtro_social is False
 

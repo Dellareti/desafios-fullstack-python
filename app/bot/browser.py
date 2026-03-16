@@ -1,6 +1,5 @@
 import logging
 from types import TracebackType
-from typing import Self
 
 from playwright.async_api import (
     Browser,
