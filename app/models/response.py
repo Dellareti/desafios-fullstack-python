@@ -6,10 +6,14 @@ from pydantic import BaseModel, Field
 class BeneficioDetalhe(BaseModel):
     """Detalhe de um benefício social recebido."""
 
-    nome_beneficio: str = Field(..., description="Nome do benefício (ex: Bolsa Família)")  # noqa: E501
+    nome_beneficio: str = Field(
+        ..., description="Nome do benefício (ex: Bolsa Família)"
+    )  # noqa: E501
     competencia: str = Field(..., description="Mês/ano de competência (ex: 01/2024)")
     valor: float = Field(..., description="Valor do benefício em reais")
-    situacao: str = Field(..., description="Situação do benefício (ex: Pago, Cancelado)")  # noqa: E501
+    situacao: str = Field(
+        ..., description="Situação do benefício (ex: Pago, Cancelado)"
+    )  # noqa: E501
 
 
 class ConsultaResponse(BaseModel):
@@ -21,7 +25,9 @@ class ConsultaResponse(BaseModel):
         description="Mensagem de erro em caso de falha",
     )
     nome: str | None = Field(default=None, description="Nome completo da pessoa")
-    cpf: str | None = Field(default=None, description="CPF mascarado (ex: ***.456.789-**)")  # noqa: E501
+    cpf: str | None = Field(
+        default=None, description="CPF mascarado (ex: ***.456.789-**)"
+    )  # noqa: E501
     nis: str | None = Field(default=None, description="NIS da pessoa")
     data_nascimento: str | None = Field(
         default=None,

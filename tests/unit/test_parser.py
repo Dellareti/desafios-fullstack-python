@@ -1,4 +1,3 @@
-
 from app.bot.parser import (
     limpar_texto,
     parse_competencia,

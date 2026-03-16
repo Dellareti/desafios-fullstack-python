@@ -60,9 +60,18 @@ def parse_competencia(texto: str) -> str:
     Retorna o texto original limpo se não conseguir normalizar.
     """
     meses = {
-        "jan": "01", "fev": "02", "mar": "03", "abr": "04",
-        "mai": "05", "jun": "06", "jul": "07", "ago": "08",
-        "set": "09", "out": "10", "nov": "11", "dez": "12",
+        "jan": "01",
+        "fev": "02",
+        "mar": "03",
+        "abr": "04",
+        "mai": "05",
+        "jun": "06",
+        "jul": "07",
+        "ago": "08",
+        "set": "09",
+        "out": "10",
+        "nov": "11",
+        "dez": "12",
     }
     texto_limpo = limpar_texto(texto).lower()
     for nome, num in meses.items():

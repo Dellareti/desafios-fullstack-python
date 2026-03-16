@@ -5,6 +5,7 @@ Requerem conexão com internet e Chromium instalado.
 Executar com:
     pytest tests/integration/ -v --timeout=60
 """
+
 import pytest
 
 from app.models.request import ConsultaRequest, TipoIdentificador

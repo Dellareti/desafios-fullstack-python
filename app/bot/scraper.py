@@ -106,9 +106,7 @@ class TransparenciaScraper:
         """
         try:
             await self._navegar_para_busca(identificador, filtro_social)
-            ja_na_pagina_detalhe = await self._aguardar_resultados(
-                identificador, tipo
-            )
+            ja_na_pagina_detalhe = await self._aguardar_resultados(identificador, tipo)
 
             if not ja_na_pagina_detalhe:
                 await self._clicar_primeiro_resultado(identificador, tipo)
@@ -140,7 +138,6 @@ class TransparenciaScraper:
             logger.exception("Erro inesperado durante scraping")
             raise ErroNavegacaoError(str(exc)) from exc
 
-
     async def _navegar_para_busca(
         self,
         identificador: str,
@@ -157,9 +154,7 @@ class TransparenciaScraper:
         # Filtro social: id="beneficiarioProgramaSocial"
         if filtro_social:
             try:
-                await self._page.check(
-                    "#beneficiarioProgramaSocial", timeout=5_000
-                )
+                await self._page.check("#beneficiarioProgramaSocial", timeout=5_000)
                 logger.debug("Filtro social ativado")
             except Exception:
                 logger.debug("Checkbox filtro social não disponível")
@@ -225,9 +220,7 @@ class TransparenciaScraper:
             raise ConsultaNaoEncontradaError(identificador, tipo.value)
 
         await primeiro_link.click()
-        await self._page.wait_for_load_state(
-            "networkidle", timeout=settings.timeout_ms
-        )
+        await self._page.wait_for_load_state("networkidle", timeout=settings.timeout_ms)
 
     async def _extrair_dados_pessoa(self) -> dict[str, str | None]:
         """
@@ -281,9 +274,7 @@ class TransparenciaScraper:
         except Exception:
             pass
 
-        raw: list[dict[str, str]] = await self._page.evaluate(
-            _JS_EXTRAIR_BENEFICIOS
-        )
+        raw: list[dict[str, str]] = await self._page.evaluate(_JS_EXTRAIR_BENEFICIOS)
         beneficios: list[BeneficioDetalhe] = []
         nis_extraido: str | None = None
 
@@ -300,7 +291,7 @@ class TransparenciaScraper:
             beneficios.append(
                 BeneficioDetalhe(
                     nome_beneficio=nome_beneficio,
-                    competencia="N/D",   # resumo não expõe competência
+                    competencia="N/D",  # resumo não expõe competência
                     valor=valor,
                     situacao="Recebido",
                 )
