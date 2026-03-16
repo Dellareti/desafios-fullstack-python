@@ -122,7 +122,11 @@ class TransparenciaScraper:
 
             return ConsultaResponse(
                 sucesso=True,
-                **dados_pessoa,
+                nome=dados_pessoa.get("nome"),
+                cpf=dados_pessoa.get("cpf"),
+                nis=dados_pessoa.get("nis"),
+                data_nascimento=dados_pessoa.get("data_nascimento"),
+                municipio_uf=dados_pessoa.get("municipio_uf"),
                 beneficios=beneficios,
                 screenshot_base64=screenshot,
             )
